@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PaymentSystem.Interface;
 using PaymentSystem.Models;
-using PaymentSystem.Models.Request;
 using PaymentSystem.Models.Response;
 
 namespace PaymentSystem.Controllers

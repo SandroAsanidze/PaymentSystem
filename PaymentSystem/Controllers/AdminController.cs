@@ -9,9 +9,7 @@ using System.Transactions;
 
 namespace PaymentSystem.Controllers
 {
-    //[Route("[controller]")]
-    //[ApiController]
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
         private readonly ITransaction _transaction;

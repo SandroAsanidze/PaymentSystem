@@ -16,13 +16,9 @@ namespace PaymentSystem.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly ITransaction _transaction;
-        private readonly IMerchant _merchant;
-        private readonly IConfiguration _configuration;
-        public PaymentController(ITransaction transaction, IConfiguration configuration, IMerchant merchant)
+        public PaymentController(ITransaction transaction)
         {
             _transaction = transaction;
-            _configuration = configuration;
-            _merchant = merchant;
         }
 
         [HttpPost("deposit")]
@@ -33,8 +29,9 @@ namespace PaymentSystem.Controllers
                 return BadRequest(ModelState);
             }
 
-            var registered = await _transaction.AddTransaction(request,"Deposit");
-            if (!registered)
+            var transactionID = await _transaction.AddTransaction(request, "Deposit");
+
+            if (transactionID == 0)
             {
                 return StatusCode(500, new ApiResponse
                 {
@@ -43,8 +40,7 @@ namespace PaymentSystem.Controllers
                 });
             }
 
-            string indexRoute = Url.Action("Index", "Merchant", new { transactionId = request.TransactionId }, Request.Scheme)!;
-
+            string indexRoute = Url.Action("Index", "Merchant",new { transactionId = transactionID },Request.Scheme)!;
 
             return Ok(new ApiResponse
             {
@@ -62,8 +58,9 @@ namespace PaymentSystem.Controllers
                 return BadRequest(ModelState);
             }
 
-            var registered = await _transaction.AddTransaction(request,"Withdraw");
-            if (!registered)
+            var transactionID = await _transaction.AddTransaction(request, "Withdraw");
+
+            if (transactionID == 0)
             {
                 return StatusCode(500, new ApiResponse
                 {
@@ -72,7 +69,7 @@ namespace PaymentSystem.Controllers
                 });
             }
 
-            string indexRoute = Url.Action("Index", "Merchant", new { transactionId = request.TransactionId }, Request.Scheme)!;
+            string indexRoute = Url.Action("Index", "Merchant", new { transactionId = transactionID }, Request.Scheme)!;
 
 
             return Ok(new ApiResponse

@@ -19,11 +19,11 @@ namespace PaymentSystem.Repositories
             _context = context;
         }
 
-        public async Task<bool> AddTransaction(TransactionDTO transaction,string type)
+        public async Task<int> AddTransaction(TransactionDTO transaction, string type)
         {
             if (string.IsNullOrEmpty(transaction.UserId))
             {
-                return false;
+                return 0;
             }
 
             using (var connection = _context.CreateConnection())
@@ -34,12 +34,14 @@ namespace PaymentSystem.Repositories
                 parameters.Add("@TransactionType", type, DbType.String);
                 parameters.Add("@StatusId", 4, DbType.Int32);
                 parameters.Add("@TransactionDate", DateTime.Now, DbType.DateTime);
+                parameters.Add("@TransactionId", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
                 await connection.ExecuteAsync(
                     "dbo.spTransaction_Insert",
                     parameters,
                     commandType: CommandType.StoredProcedure);
-                return true;
+
+                return parameters.Get<int>("@TransactionId");
             }
         }
 

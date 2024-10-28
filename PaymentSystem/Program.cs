@@ -1,6 +1,9 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
+using PaymentSystem.Data;
 using PaymentSystem.Extensions;
+using PaymentSystem.Models;
 using Swashbuckle.AspNetCore.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,6 +36,23 @@ builder.Services.ConfigureScope();
 builder.Services.AddControllersWithViews();
 
 
+builder.Services.AddIdentity<AppUser, IdentityRole>(options => {
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequiredLength = 8;
+})
+.AddEntityFrameworkStores<DataContext>()
+.AddDefaultTokenProviders();
+
+builder.Services.AddAuthentication(options => {
+    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
+});
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -44,8 +64,14 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseStaticFiles();
+
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
