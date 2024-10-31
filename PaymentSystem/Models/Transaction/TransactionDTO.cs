@@ -16,5 +16,6 @@ namespace PaymentSystem.Models.Transaction
         [ForeignKey("StatusId")]
         public TransactionStatus? TransactionStatus { get; set; }
         public string? UserId { get; set; }
+        public string? Hash { get; set; }
     }
 }

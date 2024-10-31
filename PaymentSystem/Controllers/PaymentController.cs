@@ -16,9 +16,11 @@ namespace PaymentSystem.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly ITransaction _transaction;
-        public PaymentController(ITransaction transaction)
+        private readonly IHashValidation _hash;
+        public PaymentController(ITransaction transaction, IHashValidation hash)
         {
             _transaction = transaction;
+            _hash = hash;
         }
 
         [HttpPost("deposit")]
@@ -27,6 +29,20 @@ namespace PaymentSystem.Controllers
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
+            }
+
+            var info = $"{request.Amount}+{request.MerchantId}+{request.TransactionId}+SecretKey";
+            var infoHash = _hash.Hash(info);
+
+            var hashResult = _hash.Verify(infoHash, info);
+
+            if(!hashResult)
+            {
+                return StatusCode(500, new ApiResponse
+                {
+                    Status = "ERROR Hash",
+                    PaymentUrl = null!
+                });
             }
 
             var transactionID = await _transaction.AddTransaction(request, "Deposit");
