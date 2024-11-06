@@ -1,14 +1,16 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.OpenApi.Models;
-using PaymentSystem.Data;
-using PaymentSystem.Extensions;
-using PaymentSystem.Models;
-using Swashbuckle.AspNetCore.Filters;
+using Microsoft.AspNetCore.Mvc.Razor;
+using PaymentSystem.Web.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
+
+builder.Services.Configure<RazorViewEngineOptions>(o =>
+{
+    o.ViewLocationFormats.Clear();
+    o.ViewLocationFormats.Add("/Web/Views/{1}/{0}" + RazorViewEngine.ViewExtension);
+});
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -17,41 +19,14 @@ builder.Services.AddControllers()
     });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
-    {
-        In = ParameterLocation.Header,
-        Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey
-    });
-
-    options.OperationFilter<SecurityRequirementsOperationFilter>();
-});
+builder.Services.AddSwaggerGen();
 
 builder.Services.AddHttpClient();
 
 builder.Services.ConfigureSqlContext(builder.Configuration);
 builder.Services.ConfigureScope();
-builder.Services.AddControllersWithViews();
-
-
-builder.Services.AddIdentity<AppUser, IdentityRole>(options => {
-    options.Password.RequireDigit = true;
-    options.Password.RequireLowercase = true;
-    options.Password.RequireUppercase = true;
-    options.Password.RequireNonAlphanumeric = true;
-    options.Password.RequiredLength = 8;
-})
-.AddEntityFrameworkStores<DataContext>()
-.AddDefaultTokenProviders();
-
-builder.Services.AddAuthentication(options => {
-    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
-    options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
-    options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
-});
-
+builder.Services.ConfigureIdentity();
+builder.Services.ConfigureAuthentication();
 
 var app = builder.Build();
 

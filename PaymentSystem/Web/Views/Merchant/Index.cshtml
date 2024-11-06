@@ -1,0 +1,110 @@
+﻿@model PaymentSystem.Domain.Models.Merchant.MerchantIndexViewModel
+
+<style>
+    body {
+        background-color: #2a2a2a;
+    }
+    .deposit-form {
+        width: 400px;
+        padding: 20px;
+        background-color: #1a1a1a;
+        border-radius: 8px;
+        margin: 20px auto;
+        position:absolute;
+        top:50%;
+        left:50%;
+        transform:translate(-50%,-70%);
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+    }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+    .form-control {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #333;
+        background-color: #2a2a2a;
+        color: white;
+        border-radius: 4px;
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+    .button-group {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .payment-confirm,
+    .payment-reject {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        margin-top:15px;
+    }
+
+    .payment-confirm {
+        background-color: #2a2a2a;
+        color: white;
+    }
+
+    .payment-reject {
+        background-color: #2a2a2a;
+        color: white;
+    }
+
+    .payment-confirm:hover {
+        background-color: #45a049;
+    }
+
+    .payment-reject:hover {
+        background-color: #da190b;
+    }
+</style>
+
+<form action="@Url.Action("ProcessPayment", "Merchant")" method="post" class="deposit-form">
+    <input type="hidden" name="transactionId" value="@ViewBag.TransactionId" />
+
+    <div class="form-group">
+        <label for="cardNumber">Card Number</label>
+        <input type="text" id="cardNumber" name="cardNumber" class="form-control" maxlength="16" placeholder="XXXX XXXX XXXX XXXX" />
+    </div>
+
+    <div class="form-group">
+        <label for="expiryDate">Expiry Date</label>
+        <input type="text" id="expiryDate" name="expiryDate" class="form-control" placeholder="MM/YY" maxlength="5" />
+    </div>
+
+    <div class="form-group">
+        <label for="cvv">CVV</label>
+        <input type="password" id="cvv" name="cvv" class="form-control" maxlength="3" />
+    </div>
+
+    <div class="form-group">
+        <label for="amount">Amount</label>
+        <input type="text" id="amount" style="cursor:no-drop; width:40%;text-align:center;" value="@ViewBag.Amount" name="amount" readonly class="form-control" />
+    </div>
+
+    <div class="button-group">
+        <button type="submit" name="action" value="confirm" class="payment-confirm">Confirm</button>
+        <button type="submit" name="action" value="reject" class="payment-reject">Reject</button>
+    </div>
+</form>
