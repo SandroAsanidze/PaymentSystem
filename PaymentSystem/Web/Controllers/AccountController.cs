@@ -28,7 +28,7 @@ namespace PaymentSystem.Web.Controllers
 
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<IActionResult> Login(LoginVM model)
+        public async Task<IActionResult> Login(LoginVM model,string action)
         {
             if (User.Identity!.IsAuthenticated)
             {
@@ -37,25 +37,28 @@ namespace PaymentSystem.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(model.Username!, model.Password!, model.RememberMe, false);
-
-                if (result.Succeeded)
+                if(action == "Login")
                 {
-                    string homeRoute = Url.Action("Index", "Home", new { }, Request.Scheme)!;
+                    var result = await _signInManager.PasswordSignInAsync(model.Username!, model.Password!, model.RememberMe, false);
 
-
-                    return Ok(new
+                    if (result.Succeeded)
                     {
-                        Status = "SUCCESS",
-                        PaymentUrl = homeRoute
-                    });
+                        string homeRoute = Url.Action("Index", "Home", new { }, Request.Scheme)!;
+
+
+                        return Ok(new
+                        {
+                            Status = "SUCCESS",
+                            PaymentUrl = homeRoute
+                        });
+                    }
                 }
 
                 ModelState.AddModelError("", "Invalid login attempt");
                 return Ok("Error");
             }
 
-            return View(model);
+            return RedirectToAction("Index","Home");
         }
 
         [HttpPost("logout")]

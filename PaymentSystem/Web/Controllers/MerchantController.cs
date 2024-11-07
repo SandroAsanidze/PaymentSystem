@@ -21,8 +21,11 @@ namespace PaymentSystem.Web.Controllers
             var transaction = await _transaction.GetTransactionById(transactionId);
             var amount = transaction.Amount;
 
+            var statusName = await _transaction.GetStatusName(transactionId);
+
             ViewBag.Amount = amount;
             ViewBag.TransactionId = transactionId;
+            ViewBag.StatusName = statusName;
             return View();
         }
 
@@ -37,7 +40,8 @@ namespace PaymentSystem.Web.Controllers
             if (action == "confirm")
             {
                 await _merchant.UpdatePaymentStatus(transactionId, 1);
-                return Ok(new MerchantNotification
+
+                return RedirectToAction("Index", new MerchantNotification
                 {
                     TransactionId = transactionId,
                     Status = "Confirmed"
@@ -46,7 +50,7 @@ namespace PaymentSystem.Web.Controllers
             else
             {
                 await _merchant.UpdatePaymentStatus(transactionId, 5);
-                return Ok(new MerchantNotification
+                return RedirectToAction("Index", new MerchantNotification
                 {
                     TransactionId = transactionId,
                     Status = "Rejected"

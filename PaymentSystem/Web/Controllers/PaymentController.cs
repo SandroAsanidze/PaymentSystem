@@ -20,7 +20,7 @@ namespace PaymentSystem.Web.Controllers
         }
 
         [HttpPost("deposit")]
-        public async Task<IActionResult> ProcessDeposit([FromBody] TransactionDTO request)
+        public async Task<IActionResult> ProcessDeposit([FromBody] TransactionForMerchant request)
         {
             if (!ModelState.IsValid)
             {
@@ -66,7 +66,7 @@ namespace PaymentSystem.Web.Controllers
 
 
         [HttpPost("withdraw")]
-        public async Task<ActionResult<ApiResponse>> ProcessWithdraw([FromBody] TransactionDTO request)
+        public async Task<ActionResult<ApiResponse>> ProcessWithdraw([FromBody] TransactionForMerchant request)
         {
             if (!ModelState.IsValid)
             {

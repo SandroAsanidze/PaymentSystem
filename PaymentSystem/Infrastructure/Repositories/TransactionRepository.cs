@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Microsoft.IdentityModel.Tokens;
 using PaymentSystem.Domain.Interface;
 using PaymentSystem.Domain.Models.Transaction;
 using PaymentSystem.Infrastructure.Data;
@@ -14,7 +15,7 @@ namespace PaymentSystem.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<int> AddTransaction(TransactionDTO transaction, string type)
+        public async Task<int> AddTransaction(TransactionForMerchant transaction, string type)
         {
             if (string.IsNullOrEmpty(transaction.UserId))
             {
@@ -66,6 +67,22 @@ namespace PaymentSystem.Infrastructure.Repositories
                     commandType: CommandType.StoredProcedure);
 
                 return transactions!;
+            }
+        }
+
+        public async Task<string> GetStatusName(int transactionId)
+        {
+            using (var connection = _context.CreateConnection())
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@TransactionId", transactionId, DbType.Int32);
+
+                var statusName = await connection.QueryFirstOrDefaultAsync<string>(
+                    "dbo.spGetStatusName",
+                    parameters,
+                    commandType: CommandType.StoredProcedure);
+
+                return statusName!;
             }
         }
     }

@@ -38,15 +38,15 @@ namespace PaymentSystem.Web.Controllers
             {
                 await _merchant.UpdatePaymentStatus(transactionId, 2);
 
+                var merchant = await _merchant.GetMerchant(transaction.MerchantId);
+                var merchantUrl = merchant.URL;
+
                 var notificationData = new
                 {
                     TransactionID = transactionId,
-                    transaction.Amount,
+                    Amount = transaction.Amount,
                     Status = "Confirmed"
                 };
-
-                var merchant = await _merchant.GetMerchant(transaction.MerchantId);
-                var merchantUrl = merchant.URL;
 
                 var success = await _notificationService.SendNotificationAsync(merchantUrl, notificationData);
 
@@ -64,16 +64,16 @@ namespace PaymentSystem.Web.Controllers
             {
                 await _merchant.UpdatePaymentStatus(transactionId, 3);
 
-                var notificationData = new
-                {
-                    TransactionId = transactionId,
-                    //TODO
-                   // Amount = ,
-                    Status = "Rejected"
-                };
 
                 var merchant = await _merchant.GetMerchant(transaction.MerchantId);
                 var merchantUrl = merchant.URL;
+
+                var notificationData = new
+                {
+                    TransactionId = transactionId,
+                    Amount = transaction.Amount,
+                    Status = "Rejected"
+                };
 
                 var success = await _notificationService.SendNotificationAsync(merchantUrl, notificationData);
 
