@@ -35,9 +35,9 @@ namespace PaymentSystem.Web.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            if (ModelState.IsValid)
+            if(action == "login")
             {
-                if(action == "Login")
+                if (ModelState.IsValid)
                 {
                     var result = await _signInManager.PasswordSignInAsync(model.Username!, model.Password!, model.RememberMe, false);
 
@@ -45,8 +45,7 @@ namespace PaymentSystem.Web.Controllers
                     {
                         string homeRoute = Url.Action("Index", "Home", new { }, Request.Scheme)!;
 
-
-                        return Ok(new
+                        return RedirectToAction("Index", "Home", new
                         {
                             Status = "SUCCESS",
                             PaymentUrl = homeRoute
@@ -54,15 +53,13 @@ namespace PaymentSystem.Web.Controllers
                     }
                 }
 
-                ModelState.AddModelError("", "Invalid login attempt");
-                return Ok("Error");
             }
-
-            return RedirectToAction("Index","Home");
+            ModelState.AddModelError("", "Invalid login attempt");
+            return Ok("Error");
         }
 
         [HttpPost("logout")]
-        public async Task<IActionResult> Logout([FromHeader] string contentType)
+        public async Task<IActionResult> Logout(string action)
         {
             await _signInManager.SignOutAsync();
             string indexRoute = Url.Action("Index", "Home", new { }, Request.Scheme)!;

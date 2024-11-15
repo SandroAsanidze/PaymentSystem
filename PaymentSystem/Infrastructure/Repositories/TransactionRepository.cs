@@ -15,9 +15,9 @@ namespace PaymentSystem.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<int> AddTransaction(TransactionForMerchant transaction, string type)
+        public async Task<int> AddTransaction(TransactionForDeposit transaction, string type)
         {
-            if (string.IsNullOrEmpty(transaction.UserId))
+            if (string.IsNullOrEmpty(transaction.MerchantUserId))
             {
                 return 0;
             }
@@ -25,11 +25,39 @@ namespace PaymentSystem.Infrastructure.Repositories
             using (var connection = _context.CreateConnection())
             {
                 var parameters = new DynamicParameters();
-                parameters.Add("@UserId", transaction.UserId, DbType.String);
+                parameters.Add("@UserId", transaction.MerchantUserId, DbType.String);
                 parameters.Add("@Amount", transaction.Amount, DbType.Int32);
                 parameters.Add("@TransactionType", type, DbType.String);
                 parameters.Add("@StatusId", 4, DbType.Int32);
                 parameters.Add("@TransactionDate", DateTime.Now, DbType.DateTime);
+                parameters.Add("@MerchantId", transaction.MerchantId, DbType.String);
+                parameters.Add("@TransactionId", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+                await connection.ExecuteAsync(
+                    "dbo.spTransaction_Insert",
+                    parameters,
+                    commandType: CommandType.StoredProcedure);
+
+                return parameters.Get<int>("@TransactionId");
+            }
+        }
+
+        public async Task<int> AddTransaction(TransactionForWithdraw transaction, string type)
+        {
+            if (string.IsNullOrEmpty(transaction.MerchantUserId))
+            {
+                return 0;
+            }
+
+            using (var connection = _context.CreateConnection())
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserId", transaction.MerchantUserId, DbType.String);
+                parameters.Add("@Amount", transaction.Amount, DbType.Int32);
+                parameters.Add("@TransactionType", type, DbType.String);
+                parameters.Add("@StatusId", 4, DbType.Int32);
+                parameters.Add("@TransactionDate", DateTime.Now, DbType.DateTime);
+                parameters.Add("@MerchantId", transaction.MerchantId, DbType.String);
                 parameters.Add("@TransactionId", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
                 await connection.ExecuteAsync(
